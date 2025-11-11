@@ -219,11 +219,11 @@
     if (qrContainer && typeof QRCode !== 'undefined') {
       new QRCode(qrContainer, {
         text: 'kaposvar-plus-demo://card/KAPO-0123-4567',
-        width: 72,
-        height: 72,
+        width: 56,
+        height: 56,
         colorDark: '#0B132B',
         colorLight: '#FFFFFF',
-        correctLevel: QRCode.CorrectLevel.M
+        correctLevel: QRCode.CorrectLevel.L
       });
     }
 
@@ -232,11 +232,12 @@
     if (barcodeElement && typeof JsBarcode !== 'undefined') {
       JsBarcode(barcodeElement, 'KAPO01234567', {
         format: 'CODE128',
-        width: 2,
-        height: 60,
+        width: 1.8,
+        height: 50,
         displayValue: false,
         background: 'transparent',
-        lineColor: '#0B132B'
+        lineColor: '#0B132B',
+        margin: 0
       });
     }
   }

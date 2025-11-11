@@ -104,50 +104,60 @@
                 <!-- Front -->
                 <div class="city-card__face city-card__face--front">
                   <div class="card-bg-pattern"></div>
-                  <div class="card-content">
-                    <div class="card-header">
-                      <div class="card-logo">Kaposvár<span class="card-logo-plus">+</span></div>
-                      <div class="card-chip">
-                        <svg width="50" height="40" viewBox="0 0 50 40" fill="none">
-                          <rect x="3" y="8" width="14" height="12" rx="2" fill="url(#chipGradient)" opacity="0.4"/>
-                          <rect x="19" y="8" width="14" height="12" rx="2" fill="url(#chipGradient)" opacity="0.4"/>
-                          <rect x="3" y="22" width="14" height="12" rx="2" fill="url(#chipGradient)" opacity="0.4"/>
-                          <rect x="19" y="22" width="14" height="12" rx="2" fill="url(#chipGradient)" opacity="0.4"/>
-                          <defs>
-                            <linearGradient id="chipGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                              <stop offset="0%" stop-color="#F59E0B"/>
-                              <stop offset="100%" stop-color="#F2C94C"/>
-                            </linearGradient>
-                          </defs>
-                        </svg>
-                      </div>
+
+                  <!-- Logo -->
+                  <div class="card-top">
+                    <div class="card-logo">Kaposvár<span class="card-logo-plus">+</span></div>
+                  </div>
+
+                  <!-- Chip -->
+                  <div class="card-chip">
+                    <svg width="50" height="40" viewBox="0 0 50 40" fill="none">
+                      <rect x="3" y="8" width="14" height="12" rx="2" fill="url(#chipGradient)" opacity="0.4"/>
+                      <rect x="19" y="8" width="14" height="12" rx="2" fill="url(#chipGradient)" opacity="0.4"/>
+                      <rect x="3" y="22" width="14" height="12" rx="2" fill="url(#chipGradient)" opacity="0.4"/>
+                      <rect x="19" y="22" width="14" height="12" rx="2" fill="url(#chipGradient)" opacity="0.4"/>
+                      <defs>
+                        <linearGradient id="chipGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#F59E0B"/>
+                          <stop offset="100%" stop-color="#F2C94C"/>
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                  </div>
+
+                  <!-- Card holder name -->
+                  <div class="card-holder-info">
+                    <div class="card-label">Kártyabirtokos</div>
+                    <div class="card-name">Minta Felhasználó</div>
+                  </div>
+
+                  <!-- Bottom row -->
+                  <div class="card-bottom-row">
+                    <div class="card-expiry-info">
+                      <div class="card-label">Érvényes</div>
+                      <div class="card-expiry-date">2026.12</div>
                     </div>
-                    <div class="card-body">
-                      <div class="card-field">
-                        <div class="card-label">Kártyabirtokos</div>
-                        <div class="card-value card-name">Minta Felhasználó</div>
-                      </div>
-                      <div class="card-footer-row">
-                        <div class="card-field">
-                          <div class="card-label">Érvényes</div>
-                          <div class="card-value">2026.12</div>
-                        </div>
-                        <div class="card-qr" id="qrcode"></div>
-                      </div>
-                    </div>
+                    <div class="card-qr" id="qrcode"></div>
                   </div>
                 </div>
 
                 <!-- Back -->
                 <div class="city-card__face city-card__face--back">
                   <div class="card-stripe"></div>
-                  <div class="card-content">
-                    <div class="card-barcode-box">
+
+                  <div class="card-back-content">
+                    <div class="card-barcode-wrapper">
                       <svg id="barcode"></svg>
                     </div>
-                    <div class="card-number">KAPO-0123-4567</div>
-                    <div class="card-security-text">
-                      Ez egy interaktív demó. Az éles kártya további biztonsági elemeket tartalmaz.
+
+                    <div class="card-id-section">
+                      <div class="card-id-label">Kártya azonosító</div>
+                      <div class="card-id-number">KAPO-0123-4567</div>
+                    </div>
+
+                    <div class="card-back-footer">
+                      <p>Ez egy interaktív demó. Az éles kártya további biztonsági elemeket tartalmaz.</p>
                     </div>
                   </div>
                 </div>
