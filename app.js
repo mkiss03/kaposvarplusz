@@ -1,16 +1,141 @@
-/* ===========================
-   Kaposvár+ Interactive Landing
-   =========================== */
+/* =============================
+   Kaposvár+ Professional JavaScript
+   ============================= */
 
 (function() {
   'use strict';
 
-  // Check reduced motion preference
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* =========================
+     Utility Functions
+     ========================= */
+
+  function createToast(message, type = 'success') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+        <path d="M8 12l3 3 5-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>${message}</span>
+    `;
+    container.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(400px)';
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }
+
+  function addRippleEffect(e) {
+    const button = e.currentTarget;
+    const ripple = document.createElement('span');
+    ripple.className = 'ripple-effect';
+
+    const rect = button.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    const x = e.clientX - rect.left - size / 2;
+    const y = e.clientY - rect.top - size / 2;
+
+    ripple.style.width = ripple.style.height = size + 'px';
+    ripple.style.left = x + 'px';
+    ripple.style.top = y + 'px';
+
+    button.appendChild(ripple);
+
+    setTimeout(() => ripple.remove(), 600);
+  }
+
+  function formatNumber(num) {
+    return new Intl.NumberFormat('hu-HU').format(num);
+  }
+
+  /* =========================
+     Scroll Progress Bar
+     ========================= */
+
+  function initScrollProgress() {
+    const progressBar = document.getElementById('scrollProgress');
+
+    window.addEventListener('scroll', () => {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const progress = (scrollTop / scrollHeight) * 100;
+      progressBar.style.transform = `scaleX(${progress / 100})`;
+    });
+  }
+
+  /* =========================
+     Particle Background
+     ========================= */
+
+  function initParticles() {
+    if (prefersReducedMotion) return;
+
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles = [];
+    const particleCount = 50;
+
+    class Particle {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.vx = (Math.random() - 0.5) * 0.5;
+        this.vy = (Math.random() - 0.5) * 0.5;
+        this.radius = Math.random() * 2 + 1;
+        this.opacity = Math.random() * 0.5 + 0.2;
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+
+        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+      }
+
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(242, 201, 76, ${this.opacity})`;
+        ctx.fill();
+      }
+    }
+
+    for (let i = 0; i < particleCount; i++) {
+      particles.push(new Particle());
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        p.update();
+        p.draw();
+      });
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  }
 
   /* =========================
      Navigation
      ========================= */
+
   function initNavigation() {
     const navToggle = document.querySelector('.nav-toggle');
     const navMenu = document.querySelector('.nav-menu');
@@ -22,15 +147,9 @@
       const isExpanded = navToggle.getAttribute('aria-expanded') === 'true';
       navToggle.setAttribute('aria-expanded', !isExpanded);
       navMenu.classList.toggle('active');
-
-      if (!isExpanded) {
-        navToggle.setAttribute('aria-label', 'Menü bezárása');
-      } else {
-        navToggle.setAttribute('aria-label', 'Menü megnyitása');
-      }
+      navToggle.setAttribute('aria-label', isExpanded ? 'Menü megnyitása' : 'Menü bezárása');
     });
 
-    // Close menu when clicking links
     navLinks.forEach(link => {
       link.addEventListener('click', () => {
         navToggle.setAttribute('aria-expanded', 'false');
@@ -39,7 +158,6 @@
       });
     });
 
-    // Close menu on escape
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && navMenu.classList.contains('active')) {
         navToggle.setAttribute('aria-expanded', 'false');
@@ -52,13 +170,13 @@
   /* =========================
      City Card (3D Flip + Tilt)
      ========================= */
+
   function initCard() {
     const card = document.getElementById('cityCard');
     if (!card) return;
 
     let isFlipped = false;
 
-    // Flip on click/Enter/Space
     function flipCard() {
       isFlipped = !isFlipped;
       card.classList.toggle('flipped', isFlipped);
@@ -73,7 +191,7 @@
       }
     });
 
-    // Pointer tilt effect (disabled if reduced motion)
+    // Tilt effect
     if (!prefersReducedMotion) {
       const cardContainer = card.closest('.card-container');
 
@@ -88,7 +206,7 @@
         const rotateX = ((y - centerY) / centerY) * -8;
         const rotateY = ((x - centerX) / centerX) * 8;
 
-        card.style.transform = `perspective(1500px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        card.style.transform = `perspective(2000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
       });
 
       cardContainer.addEventListener('mouseleave', () => {
@@ -126,138 +244,157 @@
   /* =========================
      Interactive Map
      ========================= */
+
   function initMap() {
     const mapElement = document.getElementById('map');
+    const mapOverlay = document.getElementById('mapOverlay');
+    const mapContainer = document.getElementById('mapContainer');
+
     if (!mapElement || typeof L === 'undefined') return;
 
-    // Initialize map centered on Kaposvár
-    const map = L.map('map', {
-      center: [46.3594, 17.7967],
-      zoom: 14,
-      zoomControl: true
-    });
+    let map = null;
+    let isMapActive = false;
 
-    // Dark tile layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      maxZoom: 19,
-      className: 'map-tiles'
-    }).addTo(map);
-
-    // Custom marker icon
-    const customIcon = L.divIcon({
-      className: 'custom-marker',
-      html: `<div style="
-        width: 32px;
-        height: 32px;
-        background: linear-gradient(135deg, #F59E0B, #F2C94C);
-        border-radius: 50% 50% 50% 0;
-        transform: rotate(-45deg);
-        border: 3px solid #0B132B;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      "></div>`,
-      iconSize: [32, 32],
-      iconAnchor: [16, 32]
-    });
-
-    // Points of interest
-    const pois = [
-      {
-        name: 'Tourinform Iroda',
-        coords: [46.3594, 17.7967],
-        description: 'Információs központ, programajánlatok, Kaposvár+ kártya ügyfélszolgálat.',
-        meta: '10% kedvezmény városi túrákra',
-        layer: 'discounts'
-      },
-      {
-        name: 'Csiky Gergely Színház',
-        coords: [46.3610, 17.7980],
-        description: 'Jegyvásárlás kártyás kedvezménnyel, online ülésválasztás.',
-        meta: '−15% kártyásoknak',
-        layer: 'events'
-      },
-      {
-        name: 'Fő tér',
-        coords: [46.3585, 17.7955],
-        description: 'Központi rendezvénytér, piacok, fesztiválok helyszíne.',
-        meta: 'Hétvégente farmers market',
-        layer: 'events'
-      },
-      {
-        name: 'KAPO-Z1 Parkolózóna',
-        coords: [46.3600, 17.7990],
-        description: 'Belváros zóna. Pay-by-plate rendszer, 400 Ft/óra.',
-        meta: 'Szabad: 12 / 45 férőhely',
-        layer: 'parking'
-      },
-      {
-        name: 'KAPO-Z2 Parkolózóna',
-        coords: [46.3575, 17.7940],
-        description: 'Városközpont zóna. Hosszabb parkolás, 300 Ft/óra.',
-        meta: 'Szabad: 28 / 60 férőhely',
-        layer: 'parking'
+    // Click to activate map
+    mapOverlay.addEventListener('click', () => {
+      mapOverlay.classList.add('hidden');
+      isMapActive = true;
+      if (!map) {
+        initializeMap();
       }
-    ];
-
-    const markers = {};
-    const layerGroups = {
-      events: L.layerGroup().addTo(map),
-      discounts: L.layerGroup().addTo(map),
-      parking: L.layerGroup().addTo(map)
-    };
-
-    // Add markers
-    pois.forEach((poi, index) => {
-      const marker = L.marker(poi.coords, { icon: customIcon })
-        .bindPopup(`<strong>${poi.name}</strong><br>${poi.description}`)
-        .addTo(layerGroups[poi.layer]);
-
-      marker.on('click', () => showPOICard(poi));
-      markers[index] = marker;
     });
 
-    // POI card
-    const poiCard = document.getElementById('poiCard');
-    const poiTitle = document.getElementById('poi-title');
-    const poiDescription = document.getElementById('poi-description');
-    const poiMeta = document.getElementById('poi-meta');
-    const poiClose = poiCard.querySelector('.poi-close');
-
-    function showPOICard(poi) {
-      poiTitle.textContent = poi.name;
-      poiDescription.textContent = poi.description;
-      poiMeta.textContent = poi.meta;
-      poiCard.classList.remove('hidden');
-      poiCard.focus();
-    }
-
-    poiClose.addEventListener('click', () => {
-      poiCard.classList.add('hidden');
+    // Deactivate when clicking outside
+    document.addEventListener('click', (e) => {
+      if (isMapActive && !mapContainer.contains(e.target)) {
+        mapOverlay.classList.remove('hidden');
+        isMapActive = false;
+      }
     });
 
-    // Layer controls
-    const layerButtons = document.querySelectorAll('.map-control-btn');
-    layerButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const layer = btn.dataset.layer;
-        const isActive = btn.classList.contains('active');
-
-        if (isActive) {
-          map.removeLayer(layerGroups[layer]);
-          btn.classList.remove('active');
-          btn.setAttribute('aria-pressed', 'false');
-        } else {
-          map.addLayer(layerGroups[layer]);
-          btn.classList.add('active');
-          btn.setAttribute('aria-pressed', 'true');
-        }
+    function initializeMap() {
+      map = L.map('map', {
+        center: [46.3594, 17.7967],
+        zoom: 14,
+        zoomControl: true,
+        scrollWheelZoom: true
       });
-    });
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap',
+        maxZoom: 19
+      }).addTo(map);
+
+      const customIcon = L.divIcon({
+        className: 'custom-marker',
+        html: `<div style="
+          width: 32px;
+          height: 32px;
+          background: linear-gradient(135deg, #F59E0B, #F2C94C);
+          border-radius: 50% 50% 50% 0;
+          transform: rotate(-45deg);
+          border: 3px solid #0B132B;
+          box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+        "></div>`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 32]
+      });
+
+      const pois = [
+        {
+          name: 'Tourinform Iroda',
+          coords: [46.3594, 17.7967],
+          description: 'Információs központ, programajánlatok, Kaposvár+ kártya ügyfélszolgálat.',
+          meta: '10% kedvezmény városi túrákra',
+          layer: 'discounts'
+        },
+        {
+          name: 'Csiky Gergely Színház',
+          coords: [46.3610, 17.7980],
+          description: 'Jegyvásárlás kártyás kedvezménnyel, online ülésválasztás.',
+          meta: '−15% kártyásoknak',
+          layer: 'events'
+        },
+        {
+          name: 'Fő tér',
+          coords: [46.3585, 17.7955],
+          description: 'Központi rendezvénytér, piacok, fesztiválok helyszíne.',
+          meta: 'Hétvégente farmers market',
+          layer: 'events'
+        },
+        {
+          name: 'KAPO-Z1 Parkolózóna',
+          coords: [46.3600, 17.7990],
+          description: 'Belváros zóna. Pay-by-plate rendszer, 400 Ft/óra.',
+          meta: 'Szabad: 12 / 45 férőhely',
+          layer: 'parking'
+        },
+        {
+          name: 'KAPO-Z2 Parkolózóna',
+          coords: [46.3575, 17.7940],
+          description: 'Városközpont zóna. Hosszabb parkolás, 300 Ft/óra.',
+          meta: 'Szabad: 28 / 60 férőhely',
+          layer: 'parking'
+        }
+      ];
+
+      const layerGroups = {
+        events: L.layerGroup().addTo(map),
+        discounts: L.layerGroup().addTo(map),
+        parking: L.layerGroup().addTo(map)
+      };
+
+      pois.forEach(poi => {
+        const marker = L.marker(poi.coords, { icon: customIcon })
+          .bindPopup(`<strong>${poi.name}</strong><br>${poi.description}`)
+          .addTo(layerGroups[poi.layer]);
+
+        marker.on('click', () => showPOICard(poi));
+      });
+
+      // POI card
+      const poiCard = document.getElementById('poiCard');
+      const poiTitle = document.getElementById('poi-title');
+      const poiDescription = document.getElementById('poi-description');
+      const poiMeta = document.getElementById('poi-meta');
+      const poiClose = poiCard.querySelector('.poi-close');
+
+      function showPOICard(poi) {
+        poiTitle.textContent = poi.name;
+        poiDescription.textContent = poi.description;
+        poiMeta.textContent = poi.meta;
+        poiCard.classList.remove('hidden');
+      }
+
+      poiClose.addEventListener('click', () => {
+        poiCard.classList.add('hidden');
+      });
+
+      // Layer controls
+      const layerButtons = document.querySelectorAll('.map-control-btn');
+      layerButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const layer = btn.dataset.layer;
+          const isActive = btn.classList.contains('active');
+
+          if (isActive) {
+            map.removeLayer(layerGroups[layer]);
+            btn.classList.remove('active');
+            btn.setAttribute('aria-pressed', 'false');
+          } else {
+            map.addLayer(layerGroups[layer]);
+            btn.classList.add('active');
+            btn.setAttribute('aria-pressed', 'true');
+          }
+        });
+      });
+    }
   }
 
   /* =========================
      Lazy Load Map
      ========================= */
+
   function lazyLoadMap() {
     const mapSection = document.getElementById('map-section');
     if (!mapSection) return;
@@ -275,11 +412,12 @@
   }
 
   /* =========================
-     Seat Picker
+     3D Theater Seat Picker
      ========================= */
+
   function initSeatPicker() {
-    const seatGrid = document.getElementById('seatGrid');
-    if (!seatGrid) return;
+    const theaterSeats = document.getElementById('theaterSeats');
+    if (!theaterSeats) return;
 
     const ROWS = 12;
     const COLS = 8;
@@ -288,7 +426,7 @@
 
     const selectedSeats = new Set();
     const occupiedSeats = new Set([
-      '2-3', '2-4', '3-5', '5-2', '5-3', '6-6', '7-1', '8-7', '9-4', '10-5', '11-2'
+      '2-3', '2-4', '3-5', '5-2', '5-3', '6-6', '7-1', '8-7', '9-4', '10-5', '11-2', '11-7'
     ]);
 
     // Generate seats
@@ -296,7 +434,7 @@
       for (let col = 1; col <= COLS; col++) {
         const seatId = `${row}-${col}`;
         const seat = document.createElement('button');
-        seat.className = 'seat';
+        seat.className = 'theater-seat';
         seat.dataset.seat = seatId;
         seat.setAttribute('role', 'gridcell');
         seat.setAttribute('aria-label', `Sor ${row}, Szék ${col}`);
@@ -310,7 +448,7 @@
           seat.addEventListener('click', () => toggleSeat(seatId, seat));
         }
 
-        seatGrid.appendChild(seat);
+        theaterSeats.appendChild(seat);
       }
     }
 
@@ -338,21 +476,39 @@
       }
 
       document.getElementById('selectedCount').textContent = count;
-      document.getElementById('totalPrice').textContent = `${total.toLocaleString('hu-HU')} Ft`;
+      document.getElementById('totalPrice').textContent = `${formatNumber(total)} Ft`;
 
       const walletBtn = document.getElementById('walletBtn');
       walletBtn.disabled = count === 0;
     }
 
-    // Discount toggle
     const discountCheckbox = document.getElementById('cardDiscount');
     discountCheckbox.addEventListener('change', updateSummary);
 
-    // Wallet button
     const walletBtn = document.getElementById('walletBtn');
     walletBtn.addEventListener('click', () => {
       if (selectedSeats.size > 0) {
-        alert(`Demo: ${selectedSeats.size} jegy hozzáadva a Wallethez!\n\nKiválasztott helyek: ${Array.from(selectedSeats).join(', ')}`);
+        // Confetti effect
+        if (typeof confetti !== 'undefined') {
+          confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#F59E0B', '#F2C94C', '#FFDC6B']
+          });
+        }
+
+        createToast(`${selectedSeats.size} jegy hozzáadva a Wallethez! 🎉`, 'success');
+
+        // Reset seats
+        setTimeout(() => {
+          selectedSeats.clear();
+          document.querySelectorAll('.theater-seat.selected').forEach(seat => {
+            seat.classList.remove('selected');
+            seat.setAttribute('aria-selected', 'false');
+          });
+          updateSummary();
+        }, 2000);
       }
     });
 
@@ -362,6 +518,7 @@
   /* =========================
      Parking Widget
      ========================= */
+
   function initParking() {
     const licensePlateInput = document.getElementById('licensePlate');
     const zoneSelect = document.getElementById('parkingZone');
@@ -380,17 +537,15 @@
     let elapsedSeconds = 0;
 
     const ZONE_RATES = {
-      'Z1': 400, // Ft/óra
+      'Z1': 400,
       'Z2': 300
     };
 
-    // Load last plate from localStorage
     const savedPlate = localStorage.getItem('kaposvar_plus_plate');
     if (savedPlate) {
       licensePlateInput.value = savedPlate;
     }
 
-    // Format plate input
     licensePlateInput.addEventListener('input', (e) => {
       let value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
       if (value.length > 3) {
@@ -406,7 +561,7 @@
     function startParking() {
       const plate = licensePlateInput.value.trim();
       if (!plate || plate.length < 7) {
-        alert('Kérlek add meg a rendszámot ABC-123 formátumban!');
+        createToast('Kérlek add meg a rendszámot ABC-123 formátumban!', 'error');
         licensePlateInput.focus();
         return;
       }
@@ -429,35 +584,14 @@
 
       interval = setInterval(updateTimer, 1000);
       updateTimer();
+
+      createToast('Parkolás elindítva! ⏱️', 'success');
     }
 
     function extendParking() {
-      elapsedSeconds += 30 * 60; // +30 perc
+      elapsedSeconds += 30 * 60;
       updateTimer();
-
-      const notification = document.createElement('div');
-      notification.textContent = '+30 perc hozzáadva';
-      notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 1rem 1.5rem;
-        background: linear-gradient(135deg, #F59E0B, #F2C94C);
-        color: #0B132B;
-        border-radius: 0.75rem;
-        font-weight: 600;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-        z-index: 1000;
-        animation: fadeUp 0.3s ease-out;
-      `;
-      document.body.appendChild(notification);
-
-      setTimeout(() => {
-        notification.style.opacity = '0';
-        notification.style.transform = 'translateY(-20px)';
-        notification.style.transition = 'all 0.3s';
-        setTimeout(() => notification.remove(), 300);
-      }, 2000);
+      createToast('+30 perc hozzáadva! ⏰', 'success');
     }
 
     function stopParking() {
@@ -469,7 +603,7 @@
       const hours = elapsedSeconds / 3600;
       const cost = Math.ceil(hours * rate);
 
-      alert(`Parkolás lezárva!\n\nIdőtartam: ${formatTime(elapsedSeconds)}\nDíj: ${cost.toLocaleString('hu-HU')} Ft\n\n(Ez egy demo, valós fizetés nem történik.)`);
+      createToast(`Parkolás lezárva! Időtartam: ${formatTime(elapsedSeconds)}, Díj: ${formatNumber(cost)} Ft`, 'success');
 
       resetParking();
     }
@@ -502,7 +636,7 @@
       const hours = elapsedSeconds / 3600;
       const cost = Math.ceil(hours * rate);
 
-      timerCost.textContent = `${cost.toLocaleString('hu-HU')} Ft`;
+      timerCost.textContent = `${formatNumber(cost)} Ft`;
     }
 
     function formatTime(seconds) {
@@ -516,6 +650,7 @@
   /* =========================
      KPI Counters
      ========================= */
+
   function initCounters() {
     const kpiValues = document.querySelectorAll('.kpi-value[data-target]');
     if (kpiValues.length === 0) return;
@@ -534,23 +669,21 @@
 
     function animateCounter(element, target) {
       const duration = 2000;
-      const start = 0;
       const startTime = performance.now();
 
       function update(currentTime) {
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
 
-        // Easing function
         const easeOutQuart = 1 - Math.pow(1 - progress, 4);
         const current = Math.floor(easeOutQuart * target);
 
-        element.textContent = current.toLocaleString('hu-HU');
+        element.textContent = formatNumber(current);
 
         if (progress < 1) {
           requestAnimationFrame(update);
         } else {
-          element.textContent = target.toLocaleString('hu-HU');
+          element.textContent = formatNumber(target);
         }
       }
 
@@ -559,43 +692,85 @@
   }
 
   /* =========================
+     Hero Stats Counter
+     ========================= */
+
+  function initHeroStats() {
+    const heroStats = document.querySelectorAll('.hero-stats .stat-value[data-countup]');
+
+    heroStats.forEach(stat => {
+      const target = parseInt(stat.dataset.countup);
+      const duration = 1500;
+      const startTime = performance.now();
+
+      function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const current = Math.floor(progress * target);
+
+        stat.childNodes[0].textContent = formatNumber(current);
+
+        if (progress < 1) {
+          requestAnimationFrame(update);
+        } else {
+          stat.childNodes[0].textContent = formatNumber(target);
+        }
+      }
+
+      requestAnimationFrame(update);
+    });
+  }
+
+  /* =========================
+     Ripple Effect on Buttons
+     ========================= */
+
+  function initRippleEffect() {
+    document.querySelectorAll('.ripple').forEach(button => {
+      button.addEventListener('click', addRippleEffect);
+    });
+  }
+
+  /* =========================
      Scroll Reveal
      ========================= */
+
   function initScrollReveal() {
     if (prefersReducedMotion) return;
 
-    const sections = document.querySelectorAll('.section');
+    const elements = document.querySelectorAll('[data-aos]');
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          entry.target.classList.add('reveal');
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
           observer.unobserve(entry.target);
         }
       });
     }, {
       threshold: 0.1,
-      rootMargin: '0px 0px -100px 0px'
+      rootMargin: '0px 0px -50px 0px'
     });
 
-    sections.forEach(section => {
-      section.style.opacity = '0';
-      observer.observe(section);
+    elements.forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(30px)';
+      el.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+      observer.observe(el);
     });
   }
 
   /* =========================
-     FAQ
+     FAQ Accordion
      ========================= */
+
   function initFAQ() {
     const faqItems = document.querySelectorAll('.faq-item');
 
     faqItems.forEach(item => {
-      const summary = item.querySelector('.faq-question');
-
       item.addEventListener('toggle', () => {
         if (item.open) {
-          // Close other items (accordion behavior)
           faqItems.forEach(other => {
             if (other !== item && other.open) {
               other.open = false;
@@ -607,17 +782,46 @@
   }
 
   /* =========================
+     Parallax Effect
+     ========================= */
+
+  function initParallax() {
+    if (prefersReducedMotion) return;
+
+    const parallaxElements = document.querySelectorAll('[data-parallax]');
+
+    window.addEventListener('scroll', () => {
+      const scrolled = window.pageYOffset;
+
+      parallaxElements.forEach(el => {
+        const speed = parseFloat(el.dataset.parallaxSpeed) || 0.5;
+        const yPos = -(scrolled * speed);
+        el.style.transform = `translateY(${yPos}px)`;
+      });
+    });
+  }
+
+  /* =========================
      Initialize All
      ========================= */
+
   function init() {
+    initScrollProgress();
+    initParticles();
     initNavigation();
     initCard();
     lazyLoadMap();
     initSeatPicker();
     initParking();
     initCounters();
+    initHeroStats();
+    initRippleEffect();
     initScrollReveal();
     initFAQ();
+    initParallax();
+
+    console.log('%cKaposvár+ 🚀', 'font-size: 24px; font-weight: bold; background: linear-gradient(135deg, #F59E0B, #F2C94C); -webkit-background-clip: text; -webkit-text-fill-color: transparent;');
+    console.log('Digitális városi kártya | Modern • Interaktív • Professzionális');
   }
 
   // Run on DOM ready
