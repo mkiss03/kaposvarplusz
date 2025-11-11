@@ -217,6 +217,7 @@
     // Generate QR Code
     const qrContainer = document.getElementById('qrcode');
     if (qrContainer && typeof QRCode !== 'undefined') {
+      qrContainer.innerHTML = ''; // Clear any existing QR codes
       new QRCode(qrContainer, {
         text: 'kaposvar-plus-demo://card/KAPO-0123-4567',
         width: 56,

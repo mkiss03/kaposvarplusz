@@ -568,7 +568,7 @@ ul {
 
 .hero-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: var(--space-lg);
   padding-top: var(--space-lg);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -588,6 +588,9 @@ ul {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   line-height: 1;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  letter-spacing: -0.02em;
 }
 
 .stat-unit {
@@ -1505,7 +1508,7 @@ ul {
 /* KPI Section */
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: var(--space-xl);
 }
 
@@ -1535,6 +1538,8 @@ ul {
   margin-bottom: var(--space-sm);
   font-variant-numeric: tabular-nums;
   line-height: 1;
+  white-space: nowrap;
+  letter-spacing: -0.02em;
 }
 
 .kpi-label {
