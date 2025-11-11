@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Kaposvár+ – Digitális városi kártya. Kedvezmények, jegyek és parkolás egyetlen kártyában.">
+  <title>Kaposvár+ | Digitális Városi Kártya</title>
+
+  <!-- Preconnect -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://tile.openstreetmap.org">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+
+  <!-- Main Styles -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Sticky Navigation -->
+  <header class="header" role="banner">
+    <nav class="nav container" role="navigation" aria-label="Fő navigáció">
+      <a href="#" class="logo" aria-label="Kaposvár+ kezdőlap">
+        <span class="logo-text">Kaposvár</span><span class="logo-plus">+</span>
+      </a>
+
+      <button class="nav-toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Menü megnyitása">
+        <span class="hamburger"></span>
+      </button>
+
+      <ul class="nav-menu" id="nav-menu" role="list">
+        <li><a href="#features" class="nav-link">Funkciók</a></li>
+        <li><a href="#map" class="nav-link">Térkép</a></li>
+        <li><a href="#tickets" class="nav-link">Jegyek</a></li>
+        <li><a href="#parking" class="nav-link">Parkolás</a></li>
+        <li><a href="#faq" class="nav-link">GyIK</a></li>
+        <li><a href="#cta" class="btn btn-primary btn-sm">Kérem a demót</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main-content">
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+      <div class="container hero-grid">
+        <div class="hero-content">
+          <h1 class="hero-title">
+            Kaposvár<span class="plus">+</span> – kedvezmények, jegyek és parkolás egyetlen kártyában
+          </h1>
+          <p class="hero-subtitle">
+            Megújítás 2 perc alatt • Digitális kártya a Walletben • Valós idejű városi élmény
+          </p>
+          <div class="hero-cta">
+            <a href="#cta" class="btn btn-primary btn-lg">Kérem a demót</a>
+            <a href="#features" class="btn btn-secondary btn-lg">Tudj meg többet</a>
+          </div>
+          <div class="hero-stats">
+            <div class="stat">
+              <div class="stat-value">8 500+</div>
+              <div class="stat-label">Aktív kártya</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">120+</div>
+              <div class="stat-label">Partnerhely</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">99.8%</div>
+              <div class="stat-label">Üzemidő</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="card-container">
+            <div class="card" id="cityCard" tabindex="0" role="button" aria-pressed="false" aria-label="Városi kártya előlap/hátlap váltása">
+              <div class="card__inner">
+                <!-- Front -->
+                <div class="card__face card__face--front">
+                  <div class="card-logo">
+                    <svg viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <text x="0" y="30" font-family="Manrope" font-weight="800" font-size="24" fill="url(#gradient)">
+                        Kaposvár<tspan font-weight="900" fill="#F2C94C">+</tspan>
+                      </text>
+                      <defs>
+                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                          <stop offset="0%" style="stop-color:#F59E0B;stop-opacity:1" />
+                          <stop offset="100%" style="stop-color:#F2C94C;stop-opacity:1" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                  </div>
+                  <div class="card-chip">
+                    <svg width="40" height="32" viewBox="0 0 40 32" fill="none" aria-hidden="true">
+                      <rect x="2" y="6" width="12" height="10" rx="2" fill="#FFD700" opacity="0.3"/>
+                      <rect x="16" y="6" width="12" height="10" rx="2" fill="#FFD700" opacity="0.3"/>
+                      <rect x="2" y="18" width="12" height="10" rx="2" fill="#FFD700" opacity="0.3"/>
+                      <rect x="16" y="18" width="12" height="10" rx="2" fill="#FFD700" opacity="0.3"/>
+                    </svg>
+                  </div>
+                  <div class="card-holder">
+                    <div class="card-label">Kártyabirtokos</div>
+                    <div class="card-name">Minta Felhasználó</div>
+                  </div>
+                  <div class="card-expiry">
+                    <div class="card-label">Érvényes</div>
+                    <div class="card-date">2026.12.31.</div>
+                  </div>
+                  <div class="card-qr" id="qrcode" aria-hidden="true"></div>
+                </div>
+
+                <!-- Back -->
+                <div class="card__face card__face--back">
+                  <div class="card-stripe"></div>
+                  <div class="card-barcode-container">
+                    <svg id="barcode" aria-hidden="true"></svg>
+                    <div class="card-id">KAPO-0123-4567</div>
+                  </div>
+                  <div class="card-back-footer">
+                    <p>Ez egy interaktív demó. Az éles kártya további biztonsági elemeket tartalmaz.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="section features" id="features">
+      <div class="container">
+        <h2 class="section-title">Minden, ami a városban kell</h2>
+        <p class="section-subtitle">Három fő szolgáltatás egyetlen applikációban</p>
+
+        <div class="feature-grid">
+
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                <rect x="8" y="12" width="32" height="24" rx="4" stroke="currentColor" stroke-width="2.5"/>
+                <path d="M14 20h8M14 26h12M14 32h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="34" cy="28" r="4" stroke="currentColor" stroke-width="2.5"/>
+              </svg>
+            </div>
+            <h3 class="feature-title">Digitális megújítás</h3>
+            <p class="feature-text">
+              Online igénylés percek alatt. QR-kód azonosítás, azonnali aktiválás, Apple Wallet és Google Pay támogatás.
+            </p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                <rect x="10" y="8" width="28" height="32" rx="3" stroke="currentColor" stroke-width="2.5"/>
+                <path d="M18 18h12M18 24h8M18 30h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="34" cy="12" r="6" fill="currentColor"/>
+                <path d="M32 12l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h3 class="feature-title">E-jegy Walletbe</h3>
+            <p class="feature-text">
+              Színház, mozi, rendezvény jegyek egyből a digitális tárcádba. Ülésválasztás, kedvezmény automatikus, sorban állás nélkül.
+            </p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                <rect x="6" y="16" width="36" height="24" rx="3" stroke="currentColor" stroke-width="2.5"/>
+                <path d="M12 10v6M20 10v6M28 10v6M36 10v6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                <circle cx="24" cy="28" r="4" stroke="currentColor" stroke-width="2.5"/>
+                <path d="M30 24l4 4M14 24l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <h3 class="feature-title">Pay-by-plate parkolás</h3>
+            <p class="feature-text">
+              Rendszámalapú fizetés, zónák valós idejű férőhely-mutatója, távoli meghosszabbítás, automatikus számlázás.
+            </p>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Map Section -->
+    <section class="section map-section" id="map-section">
+      <div class="container">
+        <h2 class="section-title">Interaktív városi térkép</h2>
+        <p class="section-subtitle">Felfedező nézetben böngészd a város élményeit</p>
+      </div>
+
+      <div class="map-wrapper">
+        <div class="map-container">
+          <div id="map" class="map" role="application" aria-label="Kaposvár interaktív térképe"></div>
+
+          <div class="map-controls" role="group" aria-label="Térkép rétegek">
+            <button class="map-control-btn active" data-layer="events" aria-pressed="true">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M6 2v2M14 2v2M3 8h14M5 4h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <span>Események</span>
+            </button>
+            <button class="map-control-btn active" data-layer="discounts" aria-pressed="true">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M9 2L2 10l7 8 11-8-11-8zM9 12a2 2 0 100-4 2 2 0 000 4z" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              <span>Kedvezmények</span>
+            </button>
+            <button class="map-control-btn active" data-layer="parking" aria-pressed="true">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <rect x="3" y="3" width="14" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
+                <path d="M8 7h3a2 2 0 110 4H8V7zM8 11v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <span>Parkolózónák</span>
+            </button>
+          </div>
+
+          <div class="map-poi-card hidden" id="poiCard" role="dialog" aria-labelledby="poi-title">
+            <button class="poi-close" aria-label="Bezárás">&times;</button>
+            <h3 class="poi-title" id="poi-title">—</h3>
+            <p class="poi-description" id="poi-description">—</p>
+            <div class="poi-meta" id="poi-meta"></div>
+            <div class="poi-actions">
+              <button class="btn btn-sm btn-primary">Indítás</button>
+              <button class="btn btn-sm btn-secondary">Részletek</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ticket Section -->
+    <section class="section ticket-section" id="tickets">
+      <div class="container">
+        <h2 class="section-title">Jegyvásárlás ülésválasztással</h2>
+        <p class="section-subtitle">Válassz helyet, aktiváld a kártyás kedvezményt, és mentsd a Walletbe</p>
+
+        <div class="ticket-demo">
+          <div class="ticket-grid-wrapper">
+            <div class="ticket-screen">
+              <div class="screen-label">Vászon / Színpad</div>
+            </div>
+            <div class="seat-grid" role="grid" aria-label="Ülésválasztó, 12 sor 8 oszlop" id="seatGrid">
+              <!-- Generated by JS -->
+            </div>
+            <div class="seat-legend" role="list">
+              <div class="legend-item" role="listitem">
+                <span class="seat-demo available" aria-hidden="true"></span>
+                <span>Szabad</span>
+              </div>
+              <div class="legend-item" role="listitem">
+                <span class="seat-demo selected" aria-hidden="true"></span>
+                <span>Kiválasztott</span>
+              </div>
+              <div class="legend-item" role="listitem">
+                <span class="seat-demo occupied" aria-hidden="true"></span>
+                <span>Foglalt</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="ticket-summary">
+            <h3 class="summary-title">Összegzés</h3>
+            <div class="summary-row">
+              <span>Kiválasztott ülések:</span>
+              <span id="selectedCount">0</span>
+            </div>
+            <div class="summary-row">
+              <span>Jegyár (db):</span>
+              <span>3 200 Ft</span>
+            </div>
+            <div class="summary-row discount-row">
+              <span>Kártyás kedvezmény:</span>
+              <span id="discountAmount">−10%</span>
+            </div>
+            <hr class="summary-divider">
+            <div class="summary-row summary-total">
+              <span>Fizetendő:</span>
+              <span id="totalPrice" aria-live="polite" aria-atomic="true">0 Ft</span>
+            </div>
+            <label class="checkbox-label">
+              <input type="checkbox" id="cardDiscount" checked>
+              <span>Kaposvár+ kedvezmény alkalmazása</span>
+            </label>
+            <button class="btn btn-primary btn-block" id="walletBtn" disabled>
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M3 6a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V6z" stroke="currentColor" stroke-width="2"/>
+                <path d="M14 11a1 1 0 100-2 1 1 0 000 2z" fill="currentColor"/>
+              </svg>
+              E-jegy a Walletbe – DEMO
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Parking Section -->
+    <section class="section parking-section" id="parking">
+      <div class="container">
+        <h2 class="section-title">Pay-by-plate parkolás</h2>
+        <p class="section-subtitle">Rendszám alapú fizetés és távoli kezelés</p>
+
+        <div class="parking-demo">
+          <div class="parking-card">
+            <h3 class="parking-title">Parkolási munkamenet</h3>
+
+            <div class="form-group">
+              <label for="licensePlate" class="form-label">Rendszám</label>
+              <input
+                type="text"
+                id="licensePlate"
+                class="form-input"
+                placeholder="ABC-123"
+                pattern="[A-Z]{3}-[0-9]{3}"
+                maxlength="7"
+                aria-describedby="plateHelp"
+              >
+              <small id="plateHelp" class="form-help">Formátum: ABC-123</small>
+            </div>
+
+            <div class="form-group">
+              <label for="parkingZone" class="form-label">Zóna</label>
+              <select id="parkingZone" class="form-select">
+                <option value="Z1">KAPO-Z1 (Belváros – 400 Ft/óra)</option>
+                <option value="Z2">KAPO-Z2 (Városközpont – 300 Ft/óra)</option>
+              </select>
+            </div>
+
+            <div class="parking-status" id="parkingStatus">
+              <div class="status-badge status-idle" id="statusBadge">Várakozik</div>
+              <div class="parking-timer hidden" id="parkingTimer">
+                <div class="timer-display" id="timerDisplay" aria-live="polite">00:00:00</div>
+                <div class="timer-cost" id="timerCost">0 Ft</div>
+              </div>
+            </div>
+
+            <div class="parking-actions">
+              <button class="btn btn-success" id="startParking">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M6 4l10 6-10 6V4z" fill="currentColor"/>
+                </svg>
+                Indítás
+              </button>
+              <button class="btn btn-warning hidden" id="extendParking">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M10 4v6l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                +30 perc
+              </button>
+              <button class="btn btn-danger hidden" id="stopParking">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <rect x="5" y="5" width="10" height="10" fill="currentColor"/>
+                </svg>
+                Leállítás
+              </button>
+            </div>
+
+            <div class="parking-note">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M8 4v5M8 11v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              <p>Ez egy interaktív demó. Valós tranzakció nem történik.</p>
+            </div>
+          </div>
+
+          <div class="parking-info">
+            <h3 class="info-title">Előnyök</h3>
+            <ul class="info-list" role="list">
+              <li>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                  <path d="M8 12l3 3 5-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Nincs szükség parkolóautomatára</span>
+              </li>
+              <li>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                  <path d="M8 12l3 3 5-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Bárhonnan meghosszabbítható</span>
+              </li>
+              <li>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                  <path d="M8 12l3 3 5-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Automatikus számlázás</span>
+              </li>
+              <li>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                  <path d="M8 12l3 3 5-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Valós idejű értesítések</span>
+              </li>
+              <li>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                  <path d="M8 12l3 3 5-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Kártyásoknak extra kedvezmény</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- KPI Marquee -->
+    <section class="section kpi-section">
+      <div class="container">
+        <div class="kpi-grid">
+          <div class="kpi-item">
+            <div class="kpi-value" data-target="8547">0</div>
+            <div class="kpi-label">Aktív kártyák</div>
+          </div>
+          <div class="kpi-item">
+            <div class="kpi-value" data-target="142680">0</div>
+            <div class="kpi-label">Beváltások (idén)</div>
+          </div>
+          <div class="kpi-item">
+            <div class="kpi-value" data-target="28934">0</div>
+            <div class="kpi-label">Jegyeladás</div>
+          </div>
+          <div class="kpi-item">
+            <div class="kpi-value" data-target="65210">0</div>
+            <div class="kpi-label">Indított parkolás</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Partners -->
+    <section class="section partners-section">
+      <div class="container">
+        <h2 class="section-title">Partnereink</h2>
+        <div class="partner-grid">
+          <div class="partner-logo" aria-label="Partner 1">
+            <svg viewBox="0 0 120 60" fill="currentColor">
+              <rect x="20" y="20" width="80" height="20" rx="4"/>
+            </svg>
+          </div>
+          <div class="partner-logo" aria-label="Partner 2">
+            <svg viewBox="0 0 120 60" fill="currentColor">
+              <circle cx="40" cy="30" r="15"/>
+              <rect x="60" y="15" width="40" height="30" rx="4"/>
+            </svg>
+          </div>
+          <div class="partner-logo" aria-label="Partner 3">
+            <svg viewBox="0 0 120 60" fill="currentColor">
+              <polygon points="60,15 85,45 35,45"/>
+              <rect x="50" y="35" width="20" height="10"/>
+            </svg>
+          </div>
+          <div class="partner-logo" aria-label="Partner 4">
+            <svg viewBox="0 0 120 60" fill="currentColor">
+              <path d="M30,30 L50,15 L70,30 L50,45 Z"/>
+              <circle cx="85" cy="30" r="12"/>
+            </svg>
+          </div>
+          <div class="partner-logo" aria-label="Partner 5">
+            <svg viewBox="0 0 120 60" fill="currentColor">
+              <rect x="30" y="20" width="25" height="20" rx="3"/>
+              <rect x="65" y="20" width="25" height="20" rx="3"/>
+            </svg>
+          </div>
+          <div class="partner-logo" aria-label="Partner 6">
+            <svg viewBox="0 0 120 60" fill="currentColor">
+              <circle cx="60" cy="30" r="18"/>
+              <circle cx="60" cy="30" r="10" fill="var(--brand-900)"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section faq-section" id="faq">
+      <div class="container">
+        <h2 class="section-title">Gyakran Ismételt Kérdések</h2>
+        <p class="section-subtitle">Minden, amit a Kaposvár+ kártyáról tudnod kell</p>
+
+        <div class="faq-list">
+          <details class="faq-item">
+            <summary class="faq-question">Hogyan működik a digitális kártya?</summary>
+            <div class="faq-answer">
+              <p>A Kaposvár+ digitális városi kártya az okostelefonodban él, Apple Wallet vagy Google Pay formájában. QR-kóddal vagy NFC-vel azonosítod magad a partnerhelyeken, és a kedvezmények automatikusan érvényesülnek. Nincs szükség fizikai kártyára.</p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary class="faq-question">Kell-e személyesen bemenni a megújításhoz?</summary>
+            <div class="faq-answer">
+              <p>Nem. Az online igénylés és megújítás teljesen digitális. Személyazonosságod igazolása elektronikus azonosítással (pl. ügyfélkapu) történik. Az új kártya azonnal elérhető a Walletedben.</p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary class="faq-question">Mi védi a kártyát visszaélés ellen?</summary>
+            <div class="faq-answer">
+              <p>Több biztonsági réteg is véd: egyedi QR-kód generálás minden tranzakcióhoz, biometrikus hitelesítés (Face ID / Touch ID), távoli letiltási lehetőség, és minden felhasználás naplózva van. Bankkártyánál biztonságosabb.</p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary class="faq-question">Mi a helyzet, ha nincs okostelefonom?</summary>
+            <div class="faq-answer">
+              <p>A hagyományos plasztik kártya továbbra is elérhető marad, bár kisebb funkcionalitással. Javasoljuk a családtagok bevonását: ők is kezelhetik a kártyádat az applikációból, és segíthetnek a jegyvásárlásban vagy parkolásban.</p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary class="faq-question">Milyen kedvezményeket kapok?</summary>
+            <div class="faq-answer">
+              <p>A Kaposvár+ kártyával átlagosan 10-30% kedvezményt kapsz 120+ helyszínen: éttermek, múzeumok, wellness központok, színház, mozi, könyvesbolt, sportlétesítmények és helyi szolgáltatók. A pontos lista az applikációban látható.</p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary class="faq-question">Mennyibe kerül a kártya?</summary>
+            <div class="faq-answer">
+              <p>Az éves díj 4 900 Ft, családi csomag (2 felnőtt + 2 gyermek) 12 900 Ft. Diákok és nyugdíjasok 50% kedvezményt kapnak. Az első vásárlással vagy két parkolással már megtérül. Próbaidőszak: első 30 nap ingyenes, pénzvisszafizetési garanciával.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="section cta-section" id="cta">
+      <div class="container">
+        <div class="cta-card">
+          <h2 class="cta-title">Készen állsz a digitális ugrásra?</h2>
+          <p class="cta-text">Indíts pilot programot a városodban, vagy regisztrálj béta tesztelőnek.</p>
+          <div class="cta-buttons">
+            <button class="btn btn-primary btn-lg">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M10 2v16M2 10h16" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+              </svg>
+              Kérem a városi pilotot
+            </button>
+            <button class="btn btn-secondary btn-lg">Csatlakozom béta tesztelőnek</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <div class="footer-logo">
+            <span class="logo-text">Kaposvár</span><span class="logo-plus">+</span>
+          </div>
+          <p class="footer-tagline">Digitális városi kártya a modern élményekért.</p>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-title">Termék</h4>
+          <ul class="footer-links" role="list">
+            <li><a href="#features">Funkciók</a></li>
+            <li><a href="#tickets">Jegyek</a></li>
+            <li><a href="#parking">Parkolás</a></li>
+            <li><a href="#faq">GyIK</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-title">Jogi</h4>
+          <ul class="footer-links" role="list">
+            <li><a href="#privacy">Adatvédelem</a></li>
+            <li><a href="#terms">Felhasználási feltételek</a></li>
+            <li><a href="#accessibility">Akadálymentesség</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-title">Kapcsolat</h4>
+          <ul class="footer-links" role="list">
+            <li><a href="mailto:hello@kaposvarplus.hu">hello@kaposvarplus.hu</a></li>
+            <li><a href="tel:+3682999000">+36 82 999 000</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2025 Kaposvár+. Minden jog fenntartva. Ez egy interaktív demo.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
