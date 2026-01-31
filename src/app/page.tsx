@@ -1,18 +1,37 @@
 import dynamic from 'next/dynamic'
 import { Suspense } from 'react'
-import { Sparkles, ShieldCheck, Ticket, Wifi, Gift, MapPin, ChevronDown } from 'lucide-react'
+import { Sparkles, ShieldCheck, Ticket, Wifi, Gift, MapPin } from 'lucide-react'
 import ValueTile from '@/components/ValueTile'
-import DemoPhone from '@/components/DemoPhone'
 import TransitPass from '@/components/TransitPass'
 import PointsDemo from '@/components/PointsDemo'
 import RoiCalculator from '@/components/RoiCalculator'
-import MapPreview from '@/components/MapPreview'
 import Section from '@/components/Section'
 import FAQ from '@/components/FAQ'
 
 const HeroCanvas = dynamic(() => import('@/components/HeroCanvas'), {
   ssr: false,
   loading: () => <div style={{ minHeight: '420px', background: 'var(--card)', borderRadius: 'var(--radius-lg)' }} />,
+})
+
+const MapKaposvar = dynamic(() => import('@/components/MapKaposvar'), {
+  ssr: false,
+  loading: () => (
+    <div style={{ height: '500px', background: 'var(--card)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <p className="muted">Térkép betöltése...</p>
+    </div>
+  ),
+})
+
+const ParkolasFlow = dynamic(() => import('@/components/ParkolasFlow'), {
+  ssr: false,
+})
+
+const TicketsFlow = dynamic(() => import('@/components/TicketsFlow'), {
+  ssr: false,
+})
+
+const DemoPhone = dynamic(() => import('@/components/DemoPhone'), {
+  ssr: false,
 })
 
 export default function HomePage() {
@@ -28,8 +47,8 @@ export default function HomePage() {
             <ul className="nav-links">
               <li><a href="#features">Funkciók</a></li>
               <li><a href="#map">Térkép</a></li>
-              <li><a href="#transport">Jegyek</a></li>
-              <li><a href="#demo">Parkolás</a></li>
+              <li><a href="#tickets">Jegyek</a></li>
+              <li><a href="#parking">Parkolás</a></li>
               <li><a href="#faq">GYIK</a></li>
             </ul>
             <a href="#contact" className="btn btn-primary">
@@ -98,24 +117,50 @@ export default function HomePage() {
           />
           <ValueTile
             icon={<Sparkles size={32} aria-hidden />}
-            title="Férőhely térkép (demo)"
-            text="Parkolóoszlop adat integráció valós időben."
+            title="Valós idejű térkép"
+            text="Parkolóoszlop adat integráció élő foglaltsággal."
           />
         </div>
       </Section>
 
-      {/* MAP PREVIEW */}
+      {/* REAL MAP */}
       <Section
-        title="Valós idejű parkolási adatok"
-        subtitle="Integráció a városi parkolóoszlop rendszerrel"
+        title="Valós idejű parkolási térkép"
+        subtitle="Kaposvár belváros élő parkolóhely-foglaltsággal"
         id="map"
       >
-        <MapPreview />
+        <Suspense fallback={<div style={{ height: '500px', background: 'var(--card)' }}>Betöltés...</div>}>
+          <MapKaposvar />
+        </Suspense>
+      </Section>
+
+      {/* TICKETS FLOW */}
+      <Section
+        title="Jegyvásárlás és ülésrend"
+        subtitle="Válassz üléseket, fizess egy kattintással"
+        id="tickets"
+      >
+        <Suspense fallback={<div>Betöltés...</div>}>
+          <TicketsFlow />
+        </Suspense>
+      </Section>
+
+      {/* PARKING FLOW */}
+      <Section
+        title="Parkolási folyamat"
+        subtitle="Rendszám → Zóna → Indítás → Folyamat → Leállítás"
+        id="parking"
+      >
+        <Suspense fallback={<div>Betöltés...</div>}>
+          <ParkolasFlow />
+        </Suspense>
       </Section>
 
       {/* PHONE DEMO */}
-      <Section title="Élő demó" subtitle="Próbáld ki az interfészt böngészőben" id="demo">
-        <DemoPhone />
+      <Section title="Telefon demó" subtitle="Próbáld ki az interfészt böngészőben" id="demo">
+        <Suspense fallback={<div>Betöltés...</div>}>
+          <DemoPhone />
+        </Suspense>
       </Section>
 
       {/* TÖMEGKÖZLEKEDÉS */}

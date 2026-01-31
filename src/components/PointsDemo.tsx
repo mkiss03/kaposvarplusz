@@ -1,10 +1,10 @@
 'use client'
 import { useState } from 'react'
 import { Gift } from 'lucide-react'
+import confetti from 'canvas-confetti'
 
 export default function PointsDemo() {
   const [points, setPoints] = useState(65)
-  const [showConfetti, setShowConfetti] = useState(false)
 
   const addPoints = () => {
     setPoints((p) => Math.min(p + 10, 100))
@@ -12,19 +12,22 @@ export default function PointsDemo() {
 
   const redeem = () => {
     if (points >= 80) {
-      setShowConfetti(true)
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#F3C623', '#FFD44D', '#6366F1', '#8B5CF6'],
+      })
       setTimeout(() => {
         setPoints(0)
-        setShowConfetti(false)
-      }, 2000)
+      }, 1000)
     }
   }
 
   return (
     <div style={{ maxWidth: '400px', marginInline: 'auto', position: 'relative' }}>
-      {showConfetti && <Confetti />}
       <div
-        className="card"
+        className="card glass"
         style={{
           padding: '2rem',
           display: 'flex',
@@ -104,44 +107,6 @@ export default function PointsDemo() {
             : 'Beválthatod a pontjaid kedvezményre!'}
         </p>
       </div>
-    </div>
-  )
-}
-
-function Confetti() {
-  return (
-    <div
-      style={{
-        position: 'absolute',
-        inset: 0,
-        pointerEvents: 'none',
-        zIndex: 10,
-        overflow: 'hidden',
-      }}
-    >
-      {Array.from({ length: 30 }).map((_, i) => (
-        <div
-          key={i}
-          style={{
-            position: 'absolute',
-            left: `${Math.random() * 100}%`,
-            top: '-10px',
-            width: '8px',
-            height: '8px',
-            background: ['#F3C623', '#FFD44D', '#6366F1', '#8B5CF6'][Math.floor(Math.random() * 4)],
-            borderRadius: '50%',
-            animation: `confetti-fall ${1 + Math.random() * 2}s linear forwards`,
-          }}
-        />
-      ))}
-      <style jsx>{`
-        @keyframes confetti-fall {
-          to {
-            transform: translateY(500px) rotate(720deg);
-            opacity: 0;
-          }
-        }
-      `}</style>
     </div>
   )
 }
